@@ -21,13 +21,18 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class CustomDataset(Dataset):
     def __init__(self, csv_file_src, csv_file_trg, transform=None, infer=False):
-        src = pd.read_csv(csv_file_src)
-        trg = pd.read_csv(csv_file_trg)
-        trg['gt_path'] = 0
-        self.data = pd.concat([src, trg], axis=0)
-        self.data = self.data.sample(frac=1).reset_index(drop=True)
-        self.transform = transform
-        self.infer = infer
+        if infer:
+            self.data = pd.read_csv(csv_file_trg)
+            self.infer = infer
+            self.transform = transform
+        else:
+            src = pd.read_csv(csv_file_src)
+            trg = pd.read_csv(csv_file_trg)
+            trg['gt_path'] = 0
+            self.data = pd.concat([src, trg], axis=0)
+            self.data = self.data.sample(frac=1).reset_index(drop=True)
+            self.transform = transform
+            self.infer = infer
 
     def __len__(self):
         return len(self.data)
@@ -234,7 +239,7 @@ for epoch in range(1):  # 20 에폭 동안 학습합니다.
     print(f'Epoch {epoch+1}, Loss: {epoch_loss/len(dataloader)}')
 
 
-test_dataset = CustomDataset(csv_file='./test.csv', transform=transform, infer=True)
+test_dataset = CustomDataset(csv_file_trg='./test.csv', transform=transform, infer=True)
 test_dataloader = DataLoader(test_dataset, batch_size=16, shuffle=False, num_workers=0)
 
 
