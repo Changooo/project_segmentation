@@ -69,7 +69,7 @@ transform = A.Compose(
 )
 
 dataset = CustomDataset(csv_file_src='./train_source.csv', csv_file_trg='./train_target.csv', transform=transform)
-dataloader = DataLoader(dataset, batch_size=2193, shuffle=True, num_workers=0)
+dataloader = DataLoader(dataset, batch_size=16, shuffle=True, num_workers=0)
 
 # U-Net의 기본 구성 요소인 Double Convolution Block을 정의합니다.
 def double_conv(in_channels, out_channels):
@@ -235,7 +235,7 @@ for epoch in range(1):  # 20 에폭 동안 학습합니다.
 
 
 test_dataset = CustomDataset(csv_file='./test.csv', transform=transform, infer=True)
-test_dataloader = DataLoader(test_dataset, batch_size=465, shuffle=False, num_workers=0)
+test_dataloader = DataLoader(test_dataset, batch_size=16, shuffle=False, num_workers=0)
 
 
 def rle_encode(mask):
