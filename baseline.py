@@ -20,7 +20,7 @@ import torch.nn.functional as F
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class CustomDataset(Dataset):
-    def __init__(self, csv_file_src, csv_file_trg, transform=None, infer=False):
+    def __init__(self, csv_file_src=False, csv_file_trg=False, transform=None, infer=False):
         if infer:
             self.data = pd.read_csv(csv_file_trg)
             self.infer = infer
@@ -42,8 +42,8 @@ class CustomDataset(Dataset):
     # 즉 dataloader = (input, label, domain)
     def __getitem__(self, idx):
         isTrg = False
-        img_path = self.data.iloc[idx, 1]
-        mask_path = self.data.iloc[idx, 2]
+        img_path = self.data.iloc[idx, 1] 
+        mask_path = self.data.iloc[idx, 2] if self.infer==False else 0
         if mask_path == 0:
             isTrg = True
         
@@ -254,9 +254,9 @@ def rle_encode(mask):
 with torch.no_grad():
     model.eval()
     result = []
-    for images in tqdm(test_dataloader):
+    for images, _, __ in tqdm(test_dataloader):
         images = images.float().to(device)
-        outputs, _ = model(images)
+        outputs, ___ = model(images)
         outputs = torch.softmax(outputs, dim=1).cpu()
         outputs = torch.argmax(outputs, dim=1).numpy()
         # batch에 존재하는 각 이미지에 대해서 반복
